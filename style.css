@@ -1,0 +1,76 @@
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+	padding: 0;
+	border: 0;
+	
+	vertical-align: baseline;
+}
+
+body {background: rgb(71, 191, 238) !important;}
+
+.main_wrapper{
+	background: rgb(255, 254, 254);
+	width: 1000px;
+	height: auto;
+	margin: auto;
+}
+.header_wrapper{
+	width: 1000px;
+	height: 155px;
+	margin: auto;
+    background-color: white;
+
+}
+#logo{ 
+    float: left; 
+    width: 155px; 
+    height: auto;
+}
+.menubar{
+	width: 1000px;
+	height: 45px;
+	background: gray;
+	color: white;
+}
+#menu{
+	padding: 1000;
+	margin: 0;
+	line-height: 40px;
+	float: left;  /* this for serch bar value */
+	display: inline;
+
+}
+#menu li {
+	list-style: none;
+	display: inline;
+} 
+#menu a {
+	text-decoration: none;
+	color: white;
+	padding: 8px;
+	margin: 5px;
+	font-size: 18px;
+	font-family: COMIC SANS MS;
+
+}
+#menu a:hover{color: orange; font-weight: bolder; text-decoration: underline;}
+
+.rounded{
+    width: 250px;
+    height: auto;
+}
+.table-container{
+	overflow-y: auto !important;
+		max-height: 200px;
+}
