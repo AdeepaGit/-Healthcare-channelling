@@ -17,7 +17,9 @@ require_once "config.php";
         <!-- header strart from here-->
         <div class="header_wrapper">
             <a href="index.php"><img id="logo" src="images/logo.png"/></a>
-        <h1>Healthcare Hospital</h1>
+             <a href="index.php"> 
+                <h1 style="width:800px; margin-top: 50px;float: right;">Healthcare Hospital</h1>
+            </a>
         </div>
         <!-- header end  here-->
         <!-- navigation bar strart from here-->
@@ -25,7 +27,7 @@ require_once "config.php";
 		
         <ul id="menu">
           <li><a href="index.php">Home</a></li> 
-          <li><a href="all_products.php">Staff </a></li>
+          <li><a href="staff.php">Staff </a></li>
         </ul>
 	   </div>	
       <!-- navigation bar end here-->
@@ -37,8 +39,8 @@ require_once "config.php";
           <h1 class="text-body-emphasis mb-3">Set appointment time</h1>
               <div class="row g-3">
                 <div class="col-8 ms-3 mb-3">
-                     <table class="table ">
-                      <tr>
+                     <table class="table">
+                      <tr class="table-primary">
                         <th scope="col">#</th>
                         <th scope="col">Start Time</th>
                         <th scope="col">End Time</th>
@@ -111,24 +113,35 @@ require_once "config.php";
                 <div style="overflow-y:auto !important; max-height: 500px;">
                      <table class="table " >
                       <thead>
-                      <tr>
+                      <tr class="table-primary">
                         <th scope="col">Appointment No</th>
-                        <th scope="col">Appointment No</th>
+                        <th scope="col">Appointment Date</th>
                         <th scope="col">Patient Name</th>
-                        <th scope="col">Patient Email</th>
+                        <th scope="col">Appointment Time</th>
+                        <th scope="col">Patient Mobile</th>
+                        <th scope="col">Patient Mobile</th>
                       </tr>
                       </thead>
                       <?php   
                          // Display All appointments
                         $result = mysqli_query($conn, "SELECT * FROM appointment ORDER BY appointment_date");
                         while ($row = mysqli_fetch_assoc($result)) {
-                          
+                        $AppStart = $row['start_time'];
+
+                        // Create a DateTime object from the start_time value
+                        $date1 = new DateTime($AppStart);
+                        
+                        // Get the formatted time (hours:minutes)
+                        $appointmentStart = $date1->format('H:i');
+                       
                       ?>
                       <tbody>
-                      <tr>
+                      <tr >
                         <td><?php echo $row['appointment_no']; ?></td></th>
                         <td><?php echo $row['appointment_date']; ?></td>
                         <td><?php echo $row['patient_name']; ?></td>
+                        <td><?php echo $appointmentStart; ?></td>
+                        <td><?php echo $row['patient_moile']; ?></td>
                         <td><?php echo $row['patient_email']; ?></td>
                       </tr>
                       </tbody>

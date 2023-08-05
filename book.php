@@ -13,6 +13,7 @@ $appointmentDate = $_GET['Request'];
     <link rel="stylesheet" type="text/css" href="style.css" media="all">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="script.js"></script>
 </head>
 <body>
     <!-- main container strart from here-->
@@ -20,7 +21,9 @@ $appointmentDate = $_GET['Request'];
         <!-- header strart from here-->
         <div class="header_wrapper">
             <a href="index.php"><img id="logo" src="images/logo.png"/></a>
-        <h1>Healthcare Hospital</h1>
+            <a href="index.php"> 
+                <h1 style="width:800px; margin-top: 50px;float: right;">Healthcare Hospital</h1>
+            </a>
         </div>
         <!-- header end  here-->
         <!-- navigation bar strart from here-->
@@ -28,8 +31,8 @@ $appointmentDate = $_GET['Request'];
 		
 		<ul id="menu">
 			<li><a href="index.php">Home</a></li> 
-			<li><a href="all_products.php">Staff </a></li>
-	    </ul>
+			<li><a onclick="Pemission()">Staff </a></li>
+	  </ul>
 	</div>	
     <!-- navigation bar end here-->
 
@@ -95,17 +98,26 @@ $appointmentDate = $_GET['Request'];
              </tr>
              <?php   
              
-          $result = mysqli_query($conn, "SELECT start_time,end_time FROM appointment_time");
+             $result = mysqli_query($conn, "SELECT start_time,end_time FROM appointment_time");
   
-          while ($row = mysqli_fetch_assoc($result)) {
-        
-         ?>
+                  while ($row = mysqli_fetch_assoc($result)) {
+                        $AppStart = $row['start_time'];
+                        $AppEnd = $row['end_time'];
+
+                        // Create a DateTime object from the start_time value
+                        $date1 = new DateTime($AppStart);
+                        $date2 = new DateTime($AppEnd);
+                        
+                        // Get the formatted time (hours:minutes)
+                        $appointmentStart = $date1->format('H:i');
+                        $appointmentEnd = $date2->format('H:i');
+                    ?>
              <tr>
                <td></th>
                <td><input type="text" name="lastBook" class="form-label" value="<?php echo $row['start_time']; ?>" hidden></input>
-               <?php echo  htmlspecialchars($row['start_time']); ?></td>
+               <?php echo $appointmentStart; ?></td>
                <td>
-               <?php echo htmlspecialchars($row['end_time']); ?></td>
+               <?php echo $appointmentEnd; ?></td>
              </tr>
              <?php } ?>
           </table>
@@ -120,18 +132,26 @@ $appointmentDate = $_GET['Request'];
                 </tr>
                 <?php   
                 
-             $result = mysqli_query($conn, "SELECT start_time,end_time FROM appointment where appointment_date='$appointmentDate' ");
+                $result = mysqli_query($conn, "SELECT start_time,end_time FROM appointment where appointment_date='$appointmentDate' ");
      
-             while ($row = mysqli_fetch_assoc($result)) {
+                    while ($row = mysqli_fetch_assoc($result)) {
              
-              $stTime = $row['start_time'];
-             
-            ?>
+                        $AppStart = $row['start_time'];
+                        $AppEnd = $row['end_time'];
+
+                        // Create a DateTime object from the start_time value
+                        $date1 = new DateTime($AppStart);
+                        $date2 = new DateTime($AppEnd);
+                        
+                        // Get the formatted time (hours:minutes)
+                        $appStart = $date1->format('H:i');
+                        $appotEnd = $date2->format('H:i');
+                ?>
                 <tr>
                   <td></th>
-                  <td><?php echo  htmlspecialchars($stTime); ?></td>
+                  <td><?php echo  $appStart; ?></td>
                   <td><input type="text" name="lastBook" class="form-label" value="<?php echo $row['end_time']; ?>" hidden></input>
-                  <?php echo ($row['end_time']); ?></td>
+                  <?php echo $appotEnd; ?></td>
                 </tr>
                 <?php } ?>
              </table>

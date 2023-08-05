@@ -8,38 +8,50 @@ require 'phpmailer/src/Exception.php';
 require 'phpmailer/src/PHPMailer.php';
 require 'phpmailer/src/SMTP.php';
 
+//For Proccess the booking and sent email
 if(isset($_POST['submit'])){
 
     $name = $_POST["patientName"];
     $email = $_POST["patientEmail"];
     $appointmentDate = $_POST["appDate"];
     $mobile = $_POST["patientMobile"];
-    //$lastBook = $_POST["lastBook"];
+    //if not available last booking get appointment start time as last booking
     $lastBook = isset($_POST["lastBook"]) ? $_POST["lastBook"] : $_POST['start_time'];
 
-    $result = mysqli_query($conn, "SELECT * FROM appointment_time");
+    //Getting appointment for the cal the appointment Duration
+    $result1 = mysqli_query($conn, "SELECT * FROM appointment_time");
 
-    if ($result === false) {
+    if ($result1 === false) {
         // Handle the error, e.g., display an error message or log it
         die('Error executing the query: ' . mysqli_error($conn));
     }
      
-    while ($row = mysqli_fetch_assoc($result)) {
+    while ($row = mysqli_fetch_assoc($result1)) {
         
         $time1=$row['duration']; 
-       
 
-// Calculate new time by adding minutes to the existing time
+     // Calculate  appointment Duration 
       $newTimeUnixTimestamp = strtotime($lastBook) + ($time1 * 60);
       $newTime = date("H:i", $newTimeUnixTimestamp);
-
-        echo "ID: " .$row['start_time'] . ", Name: " . $row['end_time'] . ", Age: " .$newTime. "<br>";
-       
+        //Inert appointments details
         $result = mysqli_query($conn, "INSERT INTO appointment (patient_name,patient_email,patient_moile,appointment_date,start_time,end_time) 
         VALUES ('$name', '$email', '$mobile', '$appointmentDate', '$lastBook', '$newTime')");  
 
             if ($result) {
-                
+                 $query = mysqli_query($conn, "SELECT * FROM appointment 
+                           WHERE appointment_date='$appointmentDate'
+                           AND start_time='$lastBook'");
+                if (!$query) {
+                // Query execution failed, display the error message
+                die("Query failed: " . mysqli_error($conn));
+                 }
+                while ($row = mysqli_fetch_assoc($query)) {
+                    $AppStart = $row['start_time'];
+                    // Create a DateTime object from the start_time value
+                    $date1 = new DateTime($AppStart);
+                    // Get the formatted time (hours:minutes)
+                    $appointmentStart = $date1->format('H:i');
+                                 
                 $mail = new PHPMailer(true);
 
                 $mail->isSMTP();
@@ -56,56 +68,62 @@ if(isset($_POST['submit'])){
             
                 $mail->isHTML(true);
             
-                $mail->Subject = $_POST["name"];
+                $mail->Subject = "Healthcare Hospital";
             
-                $mail->Body = $_POST["patientName"];
-            
-                $mail->Body .= " your booking ";
-            
-                $mail->Body .= $_POST["patientMobile"];
+                $mail->Body = "Patiant Name: ";
 
+                $mail->Body .= $_POST["patientName"];
+            
+                $mail->Body .= " your appointment no: ";
+
+                $mail->Body .= $row['appointment_no'];
+
+                $mail->Body .= " Appointment Date: ";
+            
                 $mail->Body .= $_POST["appDate"];
+
+                $mail->Body .= " Appointment Time: ";
+
+                $mail->Body .= "$appointmentStart";
             
                 $mail->send();
             
                 echo 
                 "
                 <script>
-                alert('Sent Succesfully');
+                alert('Your Booking Detail will sent you email');
                 document.location.href = 'index.php';
                 </Script>
                  ";
-                //echo "Record inserted successfully.";
+             }
             } else {
                 echo "Error: " . $result->error;
             }
     }
-    mysqli_free_result($result);
-
+   // mysqli_free_result($result);
 
 
 }
 
+//For checking availability of booking
 if(isset($_GET['checkTime'])){
 
     $appointmentDate = $_GET["appointmentDate"];
 
-    
-   
+    //checking booking available for this date
     $result = mysqli_query($conn, "SELECT * FROM appointment WHERE appointment_date = '$appointmentDate'");
     
     if (mysqli_num_rows($result) == 0) {
         echo 
         "
         <script>
-        alert('no records');
         var appointmentDate = " . json_encode($appointmentDate) . ";
         document.location.href = 'book.php?Request=' + encodeURIComponent(appointmentDate);
         </Script>
         ";
     
         } else {
-
+            //Getting appointment for checking if appointment available on tis date
             $result = mysqli_query($conn, "SELECT end_time  FROM appointment WHERE appointment_date = '$appointmentDate' ORDER BY appointment_no DESC LIMIT 1");
             if ($result === false) {
                 // Handle the error, e.g., display an error message or log it
@@ -114,7 +132,7 @@ if(isset($_GET['checkTime'])){
             while($row = mysqli_fetch_assoc($result)){
             $maxEndTime = $row['end_time'];
 
-            echo "The maximum end time for appointments on $appointmentDate is: $maxEndTime";
+            //Getting appointment for the cal the appointment Duration
             $result = mysqli_query($conn, "SELECT * FROM appointment_time");
 
             if ($result === false) {
@@ -127,15 +145,16 @@ if(isset($_GET['checkTime'])){
                 $time1=$row['duration'];
                 $appointEndTime=$row['end_time'];
             }      
+            //cal appointment end time
             $newTimeUnixTimestamp = strtotime($maxEndTime) + ($time1 * 60);
             $newTime = date("H:i", $newTimeUnixTimestamp);
 
-            echo "The maximum end time for appointments on $appointmentDate is: $maxEndTime and  $newTime and $appointEndTime";
+            //checking, if appointment end time override or not
              if($appointEndTime < $newTime){
                 echo 
                 "
                 <script>
-                alert('alread book ');
+                alert('Already Booking Completed. Try another date ');
                 document.location.href = 'index.php';
                 </Script>
                 ";
@@ -144,33 +163,27 @@ if(isset($_GET['checkTime'])){
                 echo 
                 "
                 <script>
-                alert('Available');
                 var appointmentDate = " . json_encode($appointmentDate) . ";
                 document.location.href = 'book.php?Request=' + encodeURIComponent(appointmentDate);
                 </Script>
                 ";
              }
-          /*  echo 
-            "
-            <script>
-            alert('Sent Succesfully');
-            document.location.href = 'index.php';
-            </Script>
-            ";*/
+         
             }
         }
 }
-
+//For change appontment time
 if(isset($_POST['changeTime'])) {
     
     $start_time = $_POST["appStTime"];
     $end_time = $_POST["appEnTime"];
     $duration = $_POST["duration"];
      
+    //check ing if it is first time or not
     $result = mysqli_query($conn, "SELECT * FROM appointment_time WHERE id_time = 1");
     
     if (mysqli_num_rows($result) == 0) {
-
+        //if first time insert 
          $result = mysqli_query($conn, "INSERT INTO appointment_time (start_time,end_time,duration,last_update ) 
                                    VALUE ('$start_time','$end_time','$duration',now())");
                 
@@ -185,6 +198,7 @@ if(isset($_POST['changeTime'])) {
                 }
             }
             else{
+                //if available update the appointment time
                  $result = mysqli_query($conn, "UPDATE appointment_time 
                                                 SET 
                                                 start_time='$start_time',

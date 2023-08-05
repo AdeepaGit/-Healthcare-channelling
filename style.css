@@ -32,6 +32,11 @@ body {background: rgb(71, 191, 238) !important;}
     background-color: white;
 
 }
+.mainHedding{
+	width:800px; 
+	margin-top: 50px;
+	float: right;
+}
 #logo{ 
     float: left; 
     width: 155px; 
